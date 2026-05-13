@@ -1,0 +1,5 @@
+*.zip
+.venv
+stations-osm.json
+_impuls_workspace
+*.pyc
