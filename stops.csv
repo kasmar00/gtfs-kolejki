@@ -2,6 +2,7 @@ stop_id,stop_lat,stop_lon,stop_name
 bartny-dol-nad-wigrami,53.9992655,23.0539004,Bartny Dół nad Wigrami
 bytom-karb-wask,50.3496714,18.8855190,Bytom Karb Wąskotorowy
 bytom-wask,50.3425779,18.9139494,Bytom Wąskotorowy
+golkow,52.050760,20.986561,Gółków
 jedrzejow-waski,50.6441060,20.2879820,Jędrzejów Wąskotorowy
 karczmiska,51.2159089,21.9974810,Karczmiska
 magazyny-amunicyjne,54.6292213,18.7934649,Magazyny Amunicyjne
@@ -34,3 +35,4 @@ janowek,52.324637,20.282511,Janówek
 koszalin,54.1871480,16.1692114,Koszalin Wąskotorowy
 krosnice,51.4787116,17.3437304,Krosnice Wąskotorowe
 przeworsk,50.0664576,22.5014274,Przeworsk Wąski
+zalesie-dolne,52.0593775,21.0094683,Zalesie Dolne

@@ -48,7 +48,7 @@ def _fetch_osm_with_cache(cache_file: str, query: str):
         headers={
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept": "*/*",
-            "User-Agent": "curl/7.81.0",
+            "User-Agent": "Polish Narrow Gauge Railways GTFS Generator (+https://gtfs.kasznia.net)",
         },
     )
 

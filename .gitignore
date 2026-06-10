@@ -3,3 +3,4 @@
 stations-osm.json
 _impuls_workspace
 *.pyc
+.env

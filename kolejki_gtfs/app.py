@@ -1,6 +1,8 @@
 import impuls
 from argparse import ArgumentParser, Namespace
 
+from kolejki_gtfs.attributions import AddAtributions
+
 from .curate_stops import CurateStops
 from .scrape_umapa import LoadUmapa
 
@@ -15,6 +17,7 @@ class KolejkiGTFS(impuls.App):
                 CurateStops(),
                 impuls.tasks.modify_from_csv.ModifyStopsFromCSV(resource="stops.csv"),
                 impuls.tasks.GenerateTripHeadsign(),
+                AddAtributions(),
                 impuls.tasks.SaveGTFS(
                     headers=GTFS_HEADERS, target="latest.zip", ensure_order=True
                 ),
@@ -32,8 +35,6 @@ GTFS_HEADERS = {
         "agency_name",
         "agency_url",
         "agency_timezone",
-        "agency_lang",
-        "agency_phone",
     ),
     "stops.txt": (
         "stop_id",
@@ -62,18 +63,6 @@ GTFS_HEADERS = {
         "arrival_time",
         "departure_time",
     ),
-    "calendar.txt": (
-        "service_id",
-        "start_date",
-        "end_date",
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-        "sunday",
-    ),
     "calendar_dates.txt": (
         "service_id",
         "date",
@@ -88,7 +77,7 @@ GTFS_HEADERS = {
     "attributions.txt": (
         "organization_name",
         "is_producer",
-        "is_operator",
+        "is_data_source",
         "attribution_url",
     ),
 }
