@@ -7,6 +7,7 @@ import impuls
 import requests
 from bs4 import BeautifulSoup
 import re
+import datetime
 
 SCRAPE_BASE = "https://www.umapa.pl/kolejki/"
 SCRAPE_CALENDAR = "showcalendar.cgi?railway=1&railway=2&railway=3&railway=4&railway=16&railway=17&railway=8&railway=9&railway=10&railway=19&railway=11&railway=12&railway=13&railway=15&railway=18&railway=20&railway=22&railway=5&railway=23&railway=6&railway=25&railway=26"
@@ -29,28 +30,110 @@ class TrainData:
 
 
 class LoadUmapa(impuls.Task):
-    agencies = {
-        "Bieszczadzka Kolejka Leśna": "BKL",
-        "Ełcka Kolej Wąskotorowa": "EKW",
-        "Górnośląskie Koleje Wąskotorowe": "GKW",
-        "Kolej Wąskotorowa Rogów - Rawa - Biała": "KWRRB",
-        "Kolej Wąskotorowa w Rudach": "KWwR",
-        "Koszalińska Kolej Wąskotorowa": "TKKW",
-        "Krośnicka Kolej Wąskotorowa": "KKW",
-        "Maltanka": "Maltanka",
-        "Muzeum Kolei Wąskotorowej w Sochaczewie": "MKWwS",
-        "Nadmorska Kolej Wąskotorowa": "NKW-R",
-        "Nadwiślańska Kolejka Wąskotorowa": "NKW-K",
-        "Piaseczyńsko-Grójecka Kolej Wąskotorowa": "PGKW",
-        "Przeworska Kolej Dojazdowa": "PKD",
-        "Średzka Kolej Powiatowa": "ŚKP",
-        "Świętokrzyska Kolejka Dojazdowa": "ŚKD",
-        "Wąskotorowe Kolejki Leśne Hajnówka": "WKLH",
-        "Wigierska Kolejka Wąskotorowa": "WKW",
-        "Wojskowa kolejka wąskotorowa Hel": "WKH",
-        "Żnińska Kolej Powiatowa": "ŻKP",
-        "Żuławska Kolej Dojazdowa": "ŻKD",
-    }
+    agencies = [
+        (
+            "Bieszczadzka Kolejka Leśna",
+            "BKL",
+            "http://kolejka.bieszczady.pl/",
+        ),
+        (
+            "Ełcka Kolej Wąskotorowa",
+            "EKW",
+            "https://muzeum.elk.pl/kolej-waskotorowa/",
+        ),
+        (
+            "Górnośląskie Koleje Wąskotorowe",
+            "GKW",
+            "https://tupowstalapolska.pl/gkw.html",
+        ),
+        (
+            "Kolej Wąskotorowa Rogów - Rawa - Biała",
+            "KWRRB",
+            "https://kolejrogowska.pl/",
+        ),
+        (
+            "Kolej Wąskotorowa w Rudach",
+            "KWwR",
+            "http://www.kolejkarudy.pl/",
+        ),
+        (
+            "Koszalińska Kolej Wąskotorowa",
+            "TKKW",
+            "http://waskotorowka.koszalin.pl/",
+        ),
+        (
+            "Krośnicka Kolej Wąskotorowa",
+            "KKW",
+            "https://www.krosnice.pl/asp/aktualnosci-z-kolejki,243,,1",
+        ),
+        (
+            "Maltanka",
+            "Maltanka",
+            "https://www.mpk.poznan.pl/strefa-pasazera/turystyka/maltanka/",
+        ),
+        (
+            "Muzeum Kolei Wąskotorowej w Sochaczewie",
+            "MKWwS",
+            "https://sochaczew.stacjamuzeum.pl/",
+        ),
+        ("Nadmorska Kolej Wąskotorowa", "NKW-R", "https://kolej.rewal.pl/"),
+        (
+            "Nadwiślańska Kolejka Wąskotorowa",
+            "NKW-K",
+            "https://nadwislanskakolejka.pl/",
+        ),
+        (
+            "Piaseczyńsko-Grójecka Kolej Wąskotorowa",
+            "PGKW",
+            "https://www.kolejka-piaseczno.pl/",
+        ),
+        (
+            "Przeworska Kolej Dojazdowa",
+            "PKD",
+            "https://kolejka-pogorzanin.pl/",
+        ),
+        (
+            "Śmigielska Kolej Wąskotorowa",
+            "ŚKW",
+            "https://zk-smigiel.pl/kolejka/oferta",
+        ),
+        (
+            "Średzka Kolej Powiatowa",
+            "ŚKP",
+            "http://sredzkakolejpowiatowa.pl/",
+        ),
+        (
+            "Świętokrzyska Kolejka Dojazdowa",
+            "ŚKD",
+            "https://swietokrzyskakolejka.pl/pl/strona-glowna/",
+        ),
+        (
+            "Wąskotorowe Kolejki Leśne Hajnówka",
+            "WKLH",
+            "https://kolejki-lesne.pl/",
+        ),
+        (
+            "Wigierska Kolejka Wąskotorowa",
+            "WKW",
+            "http://augustowska.pl/oferta/wycieczka-kolejka-waskotorowa/",
+        ),
+        (
+            "Wojskowa kolejka wąskotorowa Hel",
+            "WKWH",
+            "https://www.helmuzeum.pl/zwiedzanie/inne-atrakcje/",
+        ),
+        (
+            "Żnińska Kolej Powiatowa",
+            "ŻKP",
+            "https://mzp.gminaznin.pl/",
+        ),
+        (
+            "Żuławska Kolej Dojazdowa",
+            "ŻKD",
+            "https://kolejzulawska.pl/",
+        ),
+    ]
+    agency_lookup = {}
 
     def execute(self, r: impuls.TaskRuntime) -> None:
         days = self.get_calendar_days()
@@ -59,9 +142,13 @@ class LoadUmapa(impuls.Task):
         trains: dict[str, TrainData] = {}  # train_id -> train_data
         all_stops: set[str] = set()
 
+        start_date = datetime.datetime.today()-datetime.timedelta(days=2)
+
         for day_url in days:
-            print(day_url)
+            self.logger.debug(day_url)
             date = re.search(r"date=(\d{4}-\d{2}-\d{2})", day_url).group(1)
+            if datetime.datetime.fromisoformat(date) < start_date:
+                continue
             self.logger.info(f"Processing day: {date}")
             day_page = requests.get(SCRAPE_BASE + day_url)
             soup = BeautifulSoup(day_page.text, "html.parser")
@@ -113,7 +200,8 @@ class LoadUmapa(impuls.Task):
                     lon=0.0,
                 )
             )
-        for agency_name, agency_id in self.agencies.items():
+        for agency_name, agency_id, agency_url in self.agencies:
+            self.agency_lookup[agency_name] = agency_id
             r.db.create(
                 impuls.model.Agency(
                     id=agency_id,
@@ -122,21 +210,21 @@ class LoadUmapa(impuls.Task):
                     timezone="Europe/Warsaw",
                 )
             )
-            r.db.create(
-                impuls.model.Route(
-                    id=agency_id,
-                    agency_id=agency_id,
-                    short_name=agency_id,
-                    long_name=agency_name,
-                    type=impuls.model.Route.Type.RAIL,
-                )
+            route = impuls.model.Route(
+                id=agency_id,
+                agency_id=agency_id,
+                short_name=agency_id,
+                long_name=agency_name,
+                type=impuls.model.Route.Type.RAIL,
             )
+            route.set_extra_field("route_url", agency_url)
+            r.db.create(route)
         for train_id, train_data in trains.items():
             self.save_train_data(r, train_data)
 
     def save_train_data(self, r: impuls.TaskRuntime, train_data: TrainData) -> None:
         with r.db.transaction():
-            route_id = self.agencies[train_data.agency_name]
+            route_id = self.agency_lookup[train_data.agency_name]
 
             r.db.create(impuls.model.Calendar(id=train_data.train_id))
 

@@ -16,6 +16,7 @@ class KolejkiGTFS(impuls.App):
                 LoadUmapa(),
                 CurateStops(),
                 impuls.tasks.modify_from_csv.ModifyStopsFromCSV(resource="stops.csv"),
+                # TODO: validate all stops have non null lat/lon
                 impuls.tasks.GenerateTripHeadsign(),
                 AddAtributions(),
                 impuls.tasks.SaveGTFS(
@@ -48,6 +49,7 @@ GTFS_HEADERS = {
         "route_short_name",
         "route_long_name",
         "route_type",
+        "route_url",
     ),
     "trips.txt": (
         "route_id",
