@@ -10,7 +10,7 @@ import re
 import datetime
 
 SCRAPE_BASE = "https://www.umapa.pl/kolejki/"
-SCRAPE_CALENDAR = "showcalendar.cgi?railway=1&railway=2&railway=3&railway=4&railway=16&railway=17&railway=8&railway=9&railway=10&railway=19&railway=11&railway=12&railway=13&railway=15&railway=18&railway=20&railway=22&railway=5&railway=23&railway=6&railway=25&railway=26"
+SCRAPE_CALENDAR = "showcalendar.cgi?railway=1&railway=2&railway=3&railway=4&railway=16&railway=17&railway=8&railway=9&railway=10&railway=19&railway=11&railway=12&railway=13&railway=15&railway=18&railway=20&railway=22&railway=5&railway=23&railway=6&railway=25"
 
 
 @dataclass
